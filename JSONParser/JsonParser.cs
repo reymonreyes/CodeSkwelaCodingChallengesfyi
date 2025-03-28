@@ -70,7 +70,11 @@ namespace JSONParser
 
             if(json.Length < 2) return 1;
 
-            if (!(json[0] == '{' || json[0] == '[')) return 1;
+            var firstElement = json[0];
+            var lastElement = json[json.Length - 1];
+            if (!(firstElement == '{' || firstElement == '[')) return 1;            
+            if (firstElement == '{' && lastElement != '}') return 1;
+            if (firstElement == '[' && lastElement != ']') return 1;
 
             var rootTypes = new Stack<int>();
 
