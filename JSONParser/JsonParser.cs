@@ -93,7 +93,7 @@ namespace JSONParser
                 if (element == ',')
                 {
                     var rootType = json[rootTypes.Peek()];
-                    if (rootType == '{')
+                    if (rootType == '{')//object type
                     {
                         var hasNextKey = false;
                         for (int x = i + 1; x < json.Length; x++)
@@ -106,20 +106,22 @@ namespace JSONParser
                         }
                         if (!hasNextKey) return 1;
                     }
-
-                    //forward scan
-                    bool hasValidNextElement = false;
-                    for (int x = i + 1;x < json.Length; x++)
+                    else if (rootType == '[')//array type
                     {
-                        var nextElement = json[x];
-                        if (nextElement == '"' || char.IsDigit(nextElement) || nextElement == '{' ||
-                                nextElement == '[' || nextElement == 't' || nextElement == 'f' || nextElement == 'n')
+                        //forward scan
+                        bool hasValidNextElement = false;
+                        for (int x = i + 1; x < json.Length; x++)
                         {
-                            hasValidNextElement = true;
-                            break;
+                            var nextElement = json[x];
+                            if (nextElement == '"' || char.IsDigit(nextElement) || nextElement == '{' ||
+                                    nextElement == '[' || nextElement == 't' || nextElement == 'f' || nextElement == 'n')
+                            {
+                                hasValidNextElement = true;
+                                break;
+                            }
                         }
+                        if (!hasValidNextElement) return 1;
                     }
-                    if (!hasValidNextElement) return 1;
 
                     i++;
                     continue;
