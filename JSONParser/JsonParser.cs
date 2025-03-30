@@ -88,44 +88,7 @@ namespace JSONParser
                 {
                     i++;
                     continue;
-                }
-
-                if (element == ',')
-                {
-                    var rootType = json[rootTypes.Peek()];
-                    if (rootType == '{')//object type
-                    {
-                        var hasNextKey = false;
-                        for (int x = i + 1; x < json.Length; x++)
-                        {
-                            if (json[x] == '"')
-                            {
-                                hasNextKey = true;
-                                break;
-                            }
-                        }
-                        if (!hasNextKey) return 1;
-                    }
-                    else if (rootType == '[')//array type
-                    {
-                        //forward scan
-                        bool hasValidNextElement = false;
-                        for (int x = i + 1; x < json.Length; x++)
-                        {
-                            var nextElement = json[x];
-                            if (nextElement == '"' || char.IsDigit(nextElement) || nextElement == '{' ||
-                                    nextElement == '[' || nextElement == 't' || nextElement == 'f' || nextElement == 'n')
-                            {
-                                hasValidNextElement = true;
-                                break;
-                            }
-                        }
-                        if (!hasValidNextElement) return 1;
-                    }
-
-                    i++;
-                    continue;
-                }
+                }                
 
                 if (element == '{' || element == '[')
                 {
@@ -165,7 +128,44 @@ namespace JSONParser
                     continue;
                 }
 
-                if(element == '}' || element == ']')
+                if (element == ',')
+                {
+                    var rootType = json[rootTypes.Peek()];
+                    if (rootType == '{')//object type
+                    {
+                        var hasNextKey = false;
+                        for (int x = i + 1; x < json.Length; x++)
+                        {
+                            if (json[x] == '"')
+                            {
+                                hasNextKey = true;
+                                break;
+                            }
+                        }
+                        if (!hasNextKey) return 1;
+                    }
+                    else if (rootType == '[')//array type
+                    {
+                        //forward scan
+                        bool hasValidNextElement = false;
+                        for (int x = i + 1; x < json.Length; x++)
+                        {
+                            var nextElement = json[x];
+                            if (nextElement == '"' || char.IsDigit(nextElement) || nextElement == '{' ||
+                                    nextElement == '[' || nextElement == 't' || nextElement == 'f' || nextElement == 'n')
+                            {
+                                hasValidNextElement = true;
+                                break;
+                            }
+                        }
+                        if (!hasValidNextElement) return 1;
+                    }
+
+                    i++;
+                    continue;
+                }
+
+                if (element == '}' || element == ']')
                 {
                     if(rootTypes.Count == 0) return 1;
                     rootTypes.Pop();
