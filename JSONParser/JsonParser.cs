@@ -169,14 +169,12 @@ namespace JSONParser
                 {
                     if(rootTypes.Count == 0) return 1;
                     rootTypes.Pop();
-
                     if (i == json.Length - 1 && rootTypes.Count > 0) return 1;
+
 
                     i++;
                     continue;
                 }
-
-                if(rootTypes.Count == 0) return 1;
 
                 var rootElement = json[rootTypes.Peek()];
 
