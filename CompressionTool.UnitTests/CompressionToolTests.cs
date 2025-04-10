@@ -12,15 +12,25 @@ namespace CompressionTool.UnitTests
         public void BuildFrequencyTable_ShouldReturnCorrectCounts()
         {
             var compression = new CCCompressionTool();
-            var text = "aaaaaasssssssssdddddddddddffffffffffffffffffggggggggggggggggggggghhh";
-
+            var text = "aaaaaasssssssssdddddddddddffffffffffffffffffggggggggggggggggggggghhh";            
             var results = compression.BuildFrequencyTable(text);
 
-            Assert.Contains(results, x => x.Key == 'a' && x.Value == 6);
-            Assert.Contains(results, x => x.Key == 's' && x.Value == 9);
-            Assert.Contains(results, x => x.Key == 'h' && x.Value == 3);
-            Assert.True(results.FirstOrDefault().Key == 'h');
-            Assert.True(results.LastOrDefault().Key == 'g');
-        }        
+            Assert.Contains(results, x => x.Character == 'a' && x.Weight == 6);
+            Assert.Contains(results, x => x.Character == 's' && x.Weight == 9);
+            Assert.Contains(results, x => x.Character == 'h' && x.Weight == 3);
+            Assert.True(results.FirstOrDefault()?.Character == 'h');
+            Assert.True(results.LastOrDefault()?.Character == 'g');
+        }
+        
+        [Fact]
+        public void BuildBinaryTree_ShouldReturnCorrectRoot()
+        {
+            var compression = new CCCompressionTool();
+            var text = "aaaaaasssssssssdddddddddddffffffffffffffffffggggggggggggggggggggghhh";
+            var frequencyTable = compression.BuildFrequencyTable(text);
+            var result = compression.BuildBinaryTree(frequencyTable);
+
+            Assert.Equal(68, result.Weight);
+        }    
     }
 }
