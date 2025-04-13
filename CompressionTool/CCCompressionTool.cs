@@ -70,13 +70,64 @@ namespace CompressionTool
 
             return result!;
         }
+        public List<CharacterCode> AssignCodes(Node node)
+        {
+            var result = new List<CharacterCode>();
+            var nodes = new List<Node>();
+
+            if (node != null) nodes.Add(node);
+
+            while (nodes.Count > 0)
+            {
+                var currentNode = nodes.LastOrDefault();
+
+                if ((currentNode.Left == null && currentNode.Right == null) || (currentNode.Left != null && currentNode.Left.Bit == '0' && currentNode.Right != null && currentNode.Right.Bit == '1'))
+                {
+                    nodes.RemoveAt(nodes.Count - 1);
+
+                    if (currentNode.Left == null && currentNode.Right == null)
+                    {
+                        var code = string.Empty;
+                        foreach (var item in nodes)
+                        {
+                            if (item.Bit.HasValue)
+                                code += item.Bit;
+                        }
+                        result.Add(new CharacterCode { Character = currentNode.Character.Value, Code = code += currentNode.Bit, Weight = currentNode.Weight });
+                    }
+
+                    continue;
+                }
+
+                if (currentNode.Left != null && currentNode.Left.Bit is null)
+                {
+                    currentNode.Left.Bit = '0';
+                    nodes.Add(currentNode.Left);
+                }
+                else if (currentNode.Right != null && currentNode.Right.Bit is null)
+                {
+                    currentNode.Right.Bit = '1';
+                    nodes.Add(currentNode.Right);
+                }
+            }
+
+            return result;
+        }        
     }
 
     public class Node
     {
-        public char Character { get; set; }
+        public char? Character { get; set; }
         public int Weight { get; set; }
         public Node? Left { get; set; }
         public Node? Right { get; set; }
+        public char? Bit { get; set; }
+    }
+
+    public class CharacterCode
+    {
+        public char Character { get; set; }
+        public int Weight { get; set; }
+        public string Code { get; set; }
     }
 }

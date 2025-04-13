@@ -31,6 +31,18 @@ namespace CompressionTool.UnitTests
             var result = compression.BuildBinaryTree(frequencyTable);
 
             Assert.Equal(68, result.Weight);
-        }    
+        }
+
+        [Fact]
+        public void AssignCodes_ShouldReturnCorrectCodes()
+        {
+            var compression = new CCCompressionTool();
+            var text = "aaaaaasssssssssdddddddddddffffffffffffffffffggggggggggggggggggggghhh";
+            var frequencyTable = compression.BuildFrequencyTable(text);
+            var result = compression.BuildBinaryTree(frequencyTable);
+            var codes = compression.AssignCodes(result);
+
+            Assert.Contains(codes, x => x.Character == 'h' && x.Code == "1010");
+        }
     }
 }
