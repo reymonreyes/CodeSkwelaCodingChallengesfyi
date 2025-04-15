@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -71,7 +72,7 @@ namespace CompressionTool
             return result!;
         }
         public List<CharacterCode> AssignCodes(Node node)
-        {
+        {            
             var result = new List<CharacterCode>();
             var nodes = new List<Node>();
 
@@ -110,9 +111,22 @@ namespace CompressionTool
                     nodes.Add(currentNode.Right);
                 }
             }
+            
+            return result.OrderBy(x => x.Weight).ToList();
+        }
 
-            return result;
-        }        
+        public string GenerateHeader(List<CharacterCode> codes)
+        {
+            var result = new StringBuilder();
+
+            result.AppendLine("#HEADERSTART#");
+            result.AppendLine(string.Join(',', codes.Select(x => $"{x.Character}-{x.Weight}").ToArray()));
+            result.AppendLine("#HEADEREND#");
+
+            var json = JsonSerializer.Serialize(codes);
+
+            return result.ToString();
+        }
     }
 
     public class Node
