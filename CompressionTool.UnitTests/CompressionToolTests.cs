@@ -18,8 +18,8 @@ namespace CompressionTool.UnitTests
             Assert.Contains(results, x => x.Character == 'a' && x.Weight == 6);
             Assert.Contains(results, x => x.Character == 's' && x.Weight == 9);
             Assert.Contains(results, x => x.Character == 'h' && x.Weight == 3);
-            Assert.True(results.FirstOrDefault()?.Character == 'h');
-            Assert.True(results.LastOrDefault()?.Character == 'g');
+            Assert.True(results.FirstOrDefault()?.Character == 'a');
+            Assert.True(results.LastOrDefault()?.Character == 'h');
         }
         
         [Fact]
@@ -50,11 +50,32 @@ namespace CompressionTool.UnitTests
             var frequencyTable = compression.BuildFrequencyTable(text);
             var tree = compression.BuildBinaryTree(frequencyTable);
             var codes = compression.AssignCodes(tree);
-            string header = compression.GenerateHeader(codes);
+            string header = compression.GenerateHeader(frequencyTable);
 
             Assert.Contains("#HEADERSTART#", header);
-            Assert.Contains("h-3,a-6,s-9,d-11,f-18,g-21", header);
+            //Assert.Contains("h-3,a-6,s-9,d-11,f-18,g-21", header);
+            Assert.Contains("a-6,s-9,d-11,f-18,g-21,h-3", header);
             Assert.Contains("#HEADEREND#", header);
+        }
+
+        [Fact]
+        public void Encode_ShouldOutputCorrectEncodedValue()
+        {
+            var compression = new CCCompressionTool();
+            var encoded = compression.Encode("test");
+
+            Assert.Contains("t-2,e-1,s-1", encoded);
+            Assert.Contains("010110", encoded);
+        }
+
+        [Fact]
+        public void Decode_ShouldOutputCorrectDecodedValue()
+        {
+            var compression = new CCCompressionTool();
+            var encoded = compression.Encode(text);
+            var decoded = compression.Decode(encoded);
+
+            Assert.Equal(text, decoded);
         }
     }
 }
