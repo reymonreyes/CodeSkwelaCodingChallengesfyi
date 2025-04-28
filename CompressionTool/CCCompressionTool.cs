@@ -258,6 +258,50 @@ namespace CompressionTool
 
             return result.ToString();
         }
+
+        public string Decompress(string source, string target)
+        {
+            if (File.Exists(source))
+            {
+                var byteContents = File.ReadAllBytes(source);
+                var header = string.Empty;
+                var headerLastIndex = 0;
+                for (int i = 0; i < byteContents.Length; i++)
+                {
+                    var byteItem = byteContents[i];
+                    var charVal = Convert.ToChar(byteItem);
+                    header += charVal;
+
+                    if (header.Contains("#HEADEREND#"))
+                    {
+                        headerLastIndex = i;
+                        break;
+                    }
+                }
+
+                var bitString = new StringBuilder();
+                //decode bytes into bit string
+                for (int i = headerLastIndex + 1; i < byteContents.Length - 2; i++)
+                {
+                    bitString.Append(Convert.ToString(byteContents[i], 2).PadLeft(8, '0'));
+                }
+
+                //decode the last byte sequence reading the last byte value and adding zeroes (padding) if any
+                var lastByte = byteContents[byteContents.Length - 2];
+                var lastBits = Convert.ToString(lastByte, 2);
+                var lastBitsPadding = byteContents[byteContents.Length - 1];
+                bitString.Append(lastBits.PadLeft(lastBits.Length + lastBitsPadding, '0'));
+
+                var encoded = header + bitString;
+                var decoded = Decode(encoded);
+                
+                File.WriteAllText(target, decoded);
+
+                return target;
+            }
+
+            return string.Empty;
+        }
     }
 
     public class Node

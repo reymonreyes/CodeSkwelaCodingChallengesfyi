@@ -102,5 +102,17 @@ namespace CompressionTool.UnitTests
 
             Assert.True(compressed.Length < source.Length);
         }
+
+        [Fact]
+        public void Decompress_ShouldOutputLargeFileSize()
+        {
+            var compression = new CCCompressionTool();
+            var fileResult = compression.Decompress("compressed-test.txt", "decompressed-test.txt");
+
+            FileInfo sourceFile = new FileInfo("test.txt");
+            FileInfo decompressedFile = new FileInfo(fileResult);
+
+            Assert.True(decompressedFile.Length <= sourceFile.Length);
+        }
     }
 }
