@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -12,9 +13,74 @@ namespace CompressionTool
 {
     public class CCCompressionTool
     {
-        public Dictionary<char, int> Compress(string text)
+        public string Compress(string file)
         {
-            return new Dictionary<char, int>();
+            if (File.Exists(file))
+            {
+                var fileContents = File.ReadAllText(file);
+                var encoded = Encode(fileContents);
+
+                //compress to bytes
+                var headerEnd = "#HEADEREND#";
+                var headerLastIndex = encoded.IndexOf(headerEnd) + headerEnd.Length;
+                var header = encoded.Substring(0, headerLastIndex);
+                var bitString = encoded.Substring(header.Length);
+                List<byte> prefixByteList = new List<byte>();
+
+                for (int i = 0; i < bitString.Length; i += 8)
+                {
+                    var byteString = string.Empty;
+                    var isLastByteString = false;
+                    if (bitString.Length - i < 8)
+                        byteString = bitString.Substring(i);
+                    else
+                        byteString = bitString.Substring(i, 8);
+
+                    var byteLength = i + byteString.Length - 1;
+                    if (byteLength == bitString.Length - 1)
+                        isLastByteString = true;
+
+                    //last byte sequence could vary in length eg. "0000", "0101", "00000000"
+                    //so there are actually 2 bytes added
+                    //the first byte is the actual byte value
+                    //the second is the padding of zeros in byte value
+                    if (isLastByteString)
+                    {
+                        var padCount = 0;
+
+                        for (int j = 0; j < byteString.Length; j++)
+                        {
+                            if (byteString[j] == '1')
+                                break;
+
+                            if (byteString[j] == '0')
+                                padCount++;
+                        }
+
+                        padCount = padCount - 1 < 0 ? 0 : padCount - 1;
+
+                        prefixByteList.Add(Convert.ToByte(byteString, 2));//actual byte value
+                        prefixByteList.Add(Convert.ToByte(padCount));//padding value to be used for decoding later
+                    }
+                    else
+                    {
+                        prefixByteList.Add(Convert.ToByte(byteString, 2));
+                    }
+                }
+
+                var headerBytes = Encoding.ASCII.GetBytes(header);
+                var result = headerBytes.Concat(prefixByteList).ToArray();
+
+                var resultFilename = "compressed-" + file;
+
+                File.WriteAllBytes(resultFilename, result);
+
+                var fileInfo = new FileInfo(resultFilename);
+
+                return fileInfo.FullName;
+            }            
+
+            return string.Empty;
         }
         
         public List<Node> BuildFrequencyTable(string text)
@@ -123,16 +189,16 @@ namespace CompressionTool
         {
             var result = new StringBuilder();
 
-            result.AppendLine("#HEADERSTART#");
-            result.AppendLine(string.Join(',', nodes.Select(x => $"{x.Character}-{x.Weight}").ToArray()));
-            result.AppendLine("#HEADEREND#");
+            result.Append("#HEADERSTART#");
+            result.Append(string.Join(',', nodes.Select(x => $"{(int)x.Character!}-{x.Weight}").ToArray()));
+            result.Append("#HEADEREND#");
 
             return result.ToString();
         }
-
-        public string Encode(string source)
+        
+        public string Encode(string source)//Convert the string into bits
         {
-            var result = new StringBuilder();
+            var bitStringBuilder = new StringBuilder();
 
             var frequencyTable = BuildFrequencyTable(source);
             var tree = BuildBinaryTree(frequencyTable);
@@ -140,15 +206,15 @@ namespace CompressionTool
             var codeMap = codes.Select(x => new KeyValuePair<char, string>(x.Character, x.Code)).ToDictionary();
 
             var header = GenerateHeader(frequencyTable);
-            result.Append(header);
+            bitStringBuilder.Append(header);
 
             foreach (var item in source)
-                result.Append(codeMap[item]);
+                bitStringBuilder.Append(codeMap[item]);
 
-            return result.ToString();
+            return bitStringBuilder.ToString();            
         }
 
-        public string Decode(string encoded)
+        public string Decode(string encoded)//Convert the bits into string
         {
             //parse the header that contains the frequency table            
             string headerStart = "#HEADERSTART#", headerEnd = "#HEADEREND#";
@@ -161,7 +227,7 @@ namespace CompressionTool
             foreach (var item in temp)
             {
                 var charFrequency = item.Split('-');
-                frequencyTable.Add(new Node { Character = charFrequency[0][0], Weight = int.Parse(charFrequency[1]) });
+                frequencyTable.Add(new Node { Character = Convert.ToChar(Convert.ToInt32(charFrequency[0])), Weight = int.Parse(charFrequency[1]) });
             }
 
             //build the tree from the frequency table
@@ -177,7 +243,7 @@ namespace CompressionTool
             var currentNode = rootNode;
 
             foreach (var item in encodedStr)
-            {                
+            {
                 if (item == '0')
                     currentNode = currentNode.Left;
                 else if (item == '1')

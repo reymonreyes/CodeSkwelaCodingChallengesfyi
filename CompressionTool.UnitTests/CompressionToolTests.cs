@@ -53,8 +53,7 @@ namespace CompressionTool.UnitTests
             string header = compression.GenerateHeader(frequencyTable);
 
             Assert.Contains("#HEADERSTART#", header);
-            //Assert.Contains("h-3,a-6,s-9,d-11,f-18,g-21", header);
-            Assert.Contains("a-6,s-9,d-11,f-18,g-21,h-3", header);
+            Assert.Contains("97-6,115-9,100-11,102-18,103-21,104-3", header);
             Assert.Contains("#HEADEREND#", header);
         }
 
@@ -63,9 +62,23 @@ namespace CompressionTool.UnitTests
         {
             var compression = new CCCompressionTool();
             var encoded = compression.Encode("test");
+            var headerDecoded = string.Empty;
+            var headerDecodedLastIndex = -1;
+            for (int i = 0; i < encoded.Length; i++)
+            {
+                headerDecoded += Convert.ToChar(encoded[i]);
 
-            Assert.Contains("t-2,e-1,s-1", encoded);
-            Assert.Contains("010110", encoded);
+                if (headerDecoded.Contains("#HEADEREND#"))
+                {
+                    headerDecodedLastIndex = i;
+                    break;
+                }
+            }
+
+            var decodedBitString = encoded.Substring(headerDecodedLastIndex + 1);
+
+            Assert.Contains("116-2,101-1,115-1", headerDecoded);
+            Assert.Contains("010110", decodedBitString.ToString());
         }
 
         [Fact]
@@ -76,6 +89,18 @@ namespace CompressionTool.UnitTests
             var decoded = compression.Decode(encoded);
 
             Assert.Equal(text, decoded);
+        }
+
+        [Fact]
+        public void Compress_ShouldOutputSmallerFileSize()
+        {
+            var compression = new CCCompressionTool();
+            var fileResult = compression.Compress("test.txt");
+
+            FileInfo source = new FileInfo("test.txt");
+            FileInfo compressed = new FileInfo(fileResult);
+
+            Assert.True(compressed.Length < source.Length);
         }
     }
 }
