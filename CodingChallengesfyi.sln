@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35919.96 d17.13
+VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1-wcTool", "1-wcTool", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -12,6 +12,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSONParser", "JSONParser\JSONParser.csproj", "{BB7BF801-368F-4A73-A2F0-D25BD65D8585}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSONParser.UnitTests", "JSONParser.UnitTests\JSONParser.UnitTests.csproj", "{C11CCD13-9A71-468D-BC25-9873BFB876F9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3-CompressionTool", "3-CompressionTool", "{8478717E-7FBB-45A6-BE12-BA2E9A01F63A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompressionTool", "CompressionTool\CompressionTool.csproj", "{0DCEB07A-E337-4D58-B43B-F8A9360D8FFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompressionTool.UnitTests", "CompressionTool.UnitTests\CompressionTool.UnitTests.csproj", "{728998E6-6AFA-4F13-90E5-736114797D08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +37,14 @@ Global
 		{C11CCD13-9A71-468D-BC25-9873BFB876F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C11CCD13-9A71-468D-BC25-9873BFB876F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C11CCD13-9A71-468D-BC25-9873BFB876F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DCEB07A-E337-4D58-B43B-F8A9360D8FFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DCEB07A-E337-4D58-B43B-F8A9360D8FFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DCEB07A-E337-4D58-B43B-F8A9360D8FFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DCEB07A-E337-4D58-B43B-F8A9360D8FFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{728998E6-6AFA-4F13-90E5-736114797D08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{728998E6-6AFA-4F13-90E5-736114797D08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{728998E6-6AFA-4F13-90E5-736114797D08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{728998E6-6AFA-4F13-90E5-736114797D08}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,6 +53,8 @@ Global
 		{C815AD0D-1624-45D4-B241-DC8478DEA6B2} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{BB7BF801-368F-4A73-A2F0-D25BD65D8585} = {FF0762ED-20EF-45D3-9246-1FD62B899B83}
 		{C11CCD13-9A71-468D-BC25-9873BFB876F9} = {FF0762ED-20EF-45D3-9246-1FD62B899B83}
+		{0DCEB07A-E337-4D58-B43B-F8A9360D8FFB} = {8478717E-7FBB-45A6-BE12-BA2E9A01F63A}
+		{728998E6-6AFA-4F13-90E5-736114797D08} = {8478717E-7FBB-45A6-BE12-BA2E9A01F63A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {92639AB5-3D2C-4432-A33E-7F413A355524}
