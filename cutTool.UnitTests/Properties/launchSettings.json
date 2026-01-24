@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "cutTool.UnitTests": {
+      "commandName": "Project"
+    }
+  }
+}
