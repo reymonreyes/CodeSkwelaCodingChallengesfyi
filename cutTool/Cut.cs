@@ -14,6 +14,8 @@ namespace cutTool
             
             if(string.IsNullOrWhiteSpace(field) || field.Length > 2 || !field.StartsWith('f') || !int.TryParse(field[1].ToString(), out fieldIndex))
                 return new string[0];
+            if (fieldIndex <= 0)
+                return new string[0];
 
             var file = File.ReadAllLines(filePath);
             string[] result = new string[file.Length];
@@ -22,7 +24,7 @@ namespace cutTool
             {
                 var line = file[i];
                 var rowFields = line.Split('\t');
-                result[i] = rowFields[fieldIndex];
+                result[i] = rowFields[(fieldIndex == 1 ? 0 : fieldIndex - 1)];//note: field position number is 1 based
             }
 
             return result;
