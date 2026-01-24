@@ -2,7 +2,7 @@
   "profiles": {
     "cutTool": {
       "commandName": "Project",
-      "commandLineArgs": "-f1 challenge-cut/sample.tsv"
+      "commandLineArgs": "-f1 -d, challenge-cut/fourchords.csv"
     }
   }
 }
