@@ -14,17 +14,39 @@ namespace cutTool
                 return new string[0, 0];
 
             //make sure only valid options: f(field),d(delimiter)
-            if (options.Where(x => x.StartsWith("f") || x.StartsWith("d")).Count() == 0)
-                return new string[0, 0];           
+            if (options.Where(x => x.StartsWith("-f") || x.StartsWith("-d")).Count() == 0)
+                return new string[0, 0];
 
             //get field param
-            var fieldParam = options.FirstOrDefault(x => x.StartsWith("f"));
+            var fieldParam = options.FirstOrDefault(x => x.StartsWith("-f"));
+
             if (string.IsNullOrEmpty(fieldParam) || fieldParam.Length < 2)
                 return new string[0, 0];
-            
-            var file = File.ReadAllLines(filePath);
 
-            var fields = fieldParam.Substring(1).Split(",");
+            if (!File.Exists(filePath))
+                return new string[0, 0]
+;
+            var file = File.ReadAllLines(filePath);
+            
+            var fields = new string[0];
+            //check for comma separated field list
+            if(fieldParam.Length > 2 && int.TryParse(fieldParam.Substring(2,1), out int tempField))
+            {
+                fields = fieldParam.Substring(2).Split(",");
+            }
+            else //check for whitespace separated field list
+            {
+                //make sure -f is followed by " on the options list
+                var fieldListOptionIndex = Array.IndexOf(options, "-f");
+                if (!options[fieldListOptionIndex + 1].StartsWith("\""))
+                    return new string[0, 0];
+
+                fields = options[fieldListOptionIndex + 1].Split(" ");
+                for (int i = 0; i < fields.Length; i++)
+                    fields[i] = fields[i].Trim('"');
+
+                fields = fields.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+            }
 
             if (fields.Length == 0)
                 return new string[0, 0];
@@ -60,9 +82,9 @@ namespace cutTool
             var result = new string[file.Length, fieldIndexes.Count];
             //get delimiter param
             var delimiter = '\t';//default
-            var delimiterParam = options.FirstOrDefault(x => x.StartsWith("d"));
-            if(!string.IsNullOrWhiteSpace(delimiterParam) && delimiterParam.Length == 2)
-                delimiter = delimiterParam[1];
+            var delimiterParam = options.FirstOrDefault(x => x.StartsWith("-d"));
+            if(!string.IsNullOrWhiteSpace(delimiterParam) && delimiterParam.Length == 3)
+                delimiter = delimiterParam[2];
 
             for (int i = 0; i < file.Length; i++)
             {
