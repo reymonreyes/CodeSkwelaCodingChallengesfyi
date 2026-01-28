@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "cutTool": {
+      "commandName": "Project",
+      "commandLineArgs": "-f \"1 2\" challenge-cut/sample.tsv"
+    }
+  }
+}
