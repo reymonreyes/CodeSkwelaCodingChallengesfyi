@@ -9,37 +9,37 @@ namespace cutTool
     public class Cut
     {
         public string[,] Run(string[] options, string filePath)
+        {            
+            if (!IsInitialCheckValid(options, true, filePath, []))
+                return new string[0, 0];
+
+            var lines = File.ReadAllLines(filePath);
+
+            return Process(options, lines);            
+        }
+    
+        public string[,] Run(string[] options, string[] lines)
         {
-            if (options.Length == 0 || string.IsNullOrWhiteSpace(filePath))
+            if (!IsInitialCheckValid(options, false, string.Empty, lines))
                 return new string[0, 0];
 
-            //make sure only valid options: f(field),d(delimiter)
-            if (options.Where(x => x.StartsWith("-f") || x.StartsWith("-d")).Count() == 0)
-                return new string[0, 0];
-
-            //get field param
+            return Process(options, lines);
+        }
+    
+        private string[,] Process(string[] options, string[] lines)
+        {
             var fieldParam = options.FirstOrDefault(x => x.StartsWith("-f"));
-
-            if (string.IsNullOrEmpty(fieldParam) || fieldParam.Length < 2)
-                return new string[0, 0];
-
-            if (!File.Exists(filePath))
-                return new string[0, 0]
-;
-            var file = File.ReadAllLines(filePath);
-            
             var fields = new string[0];
             //check for comma separated field list
-            if(fieldParam.Length > 2 && int.TryParse(fieldParam.Substring(2,1), out int tempField))
+            if (fieldParam.Length > 2 && int.TryParse(fieldParam.Substring(2, 1), out int tempField))
             {
                 fields = fieldParam.Substring(2).Split(",");
             }
             else //check for whitespace separated field list
             {
-                //make sure -f is followed by " on the options list
                 var fieldListOptionIndex = Array.IndexOf(options, "-f");
-                if (!options[fieldListOptionIndex + 1].StartsWith("\""))
-                    return new string[0, 0];
+                //maybe also consider if the passed parameter is in the format -f"1 2"?
+                //which means to make sure -f is followed by " on the options list
 
                 fields = options[fieldListOptionIndex + 1].Split(" ");
                 for (int i = 0; i < fields.Length; i++)
@@ -52,23 +52,23 @@ namespace cutTool
                 return new string[0, 0];
 
             if (fields.Any(x => !int.TryParse(x, out int fieldIndex)))
-                return new string[0, 0];            
+                return new string[0, 0];
 
             //only valid fields
             var fieldIndexes = new List<int>();
             var hasInvalidField = false;
-            foreach ( var field in fields)
+            foreach (var field in fields)
             {
                 if (int.TryParse(field, out var fieldIndex))
                 {
-                    if(fieldIndex <= 0)
+                    if (fieldIndex <= 0)
                     {
                         hasInvalidField = true;
                         break;
                     }
 
                     if (fieldIndex > 0)
-                        fieldIndexes.Add(fieldIndex-1);//note: field position number is 1 based
+                        fieldIndexes.Add(fieldIndex - 1);//note: field position number is 1 based
                 }
                 else
                 {
@@ -77,27 +77,49 @@ namespace cutTool
                 }
             }
 
-            if(hasInvalidField) return new string[0, 0];
+            if (hasInvalidField) return new string[0, 0];
 
-            var result = new string[file.Length, fieldIndexes.Count];
+            var result = new string[lines.Length, fieldIndexes.Count];
             //get delimiter param
             var delimiter = '\t';//default
             var delimiterParam = options.FirstOrDefault(x => x.StartsWith("-d"));
-            if(!string.IsNullOrWhiteSpace(delimiterParam) && delimiterParam.Length == 3)
+            if (!string.IsNullOrWhiteSpace(delimiterParam) && delimiterParam.Length == 3)
                 delimiter = delimiterParam[2];
 
-            for (int i = 0; i < file.Length; i++)
+            for (int i = 0; i < lines.Length; i++)
             {
-                var line = file[i];
+                var line = lines[i];
                 var rowFields = line.Split(delimiter);
 
                 for (int x = 0; x < fieldIndexes.Count; x++)
                 {
-                    result[i,x] = rowFields[fieldIndexes[x]];
+                    result[i, x] = rowFields[fieldIndexes[x]];
                 }
             }
 
             return result;
+        }
+    
+        private bool IsInitialCheckValid(string[] options, bool isFile, string filePath, string[] lines)
+        {
+            if (options.Length == 0)// || lines.Length == 0)
+                return false;
+            if (isFile && string.IsNullOrWhiteSpace(filePath))
+                return false;
+            else if(!isFile && lines.Length == 0)
+                return false;
+            
+            //make sure only valid options: f(field),d(delimiter)
+            if (options.Where(x => x.StartsWith("-f") || x.StartsWith("-d")).Count() == 0)
+                return false;
+
+            //get field param
+            var fieldParam = options.FirstOrDefault(x => x.StartsWith("-f"));
+
+            if (string.IsNullOrEmpty(fieldParam) || fieldParam.Length < 2)
+                return false;
+
+            return true;
         }
     }
 }
