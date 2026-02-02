@@ -7,13 +7,13 @@ namespace LoadBalancer
 {
     internal class Program
     {
-        private static List<string> backendServersUrls = new List<string> { "http://localhost:8081", "http://localhost:8082", "http://localhost:8083" };
-        //private static string[] backendServersUrls = new string[]{ "http://localhost:8081", "http://localhost:8082", "http://localhost:8083" };
+        private static List<string> backendServerUrls = new List<string> { "http://localhost:8081", "http://localhost:8082", "http://localhost:8083" };
+        private static List<string> activeBackendServerUrls = new List<string>();
         private static Timer? _timer = null;
         static async Task Main(string[] args)
         {
             //client -> load balancer -> backend server -> load balancer -> client
-
+            activeBackendServerUrls = backendServerUrls.ToList();
             StartHealthChecker();
 
             var httpListener = new HttpListener();
@@ -38,8 +38,9 @@ namespace LoadBalancer
                 Console.WriteLine($"Accept: {(request.AcceptTypes != null ? string.Join(',', request.AcceptTypes) : "")}");
 
                 //make a request to backend server
-                var backendServerIndex = nextBackendServer % backendServersUrls.Count;
-                var backendServerUrl = backendServersUrls[backendServerIndex];
+                Console.WriteLine();
+                var backendServerIndex = nextBackendServer % activeBackendServerUrls.Count;
+                var backendServerUrl = activeBackendServerUrls[backendServerIndex];
                 Console.WriteLine($"Backend request to server {backendServerUrl}");
                 nextBackendServer++;
 
@@ -49,7 +50,7 @@ namespace LoadBalancer
 
                 //show the response
                 if(backendRequest.IsSuccessStatusCode)
-                    Console.Write($"OK response from {backendServerUrl}");
+                    Console.Write($"OK response from {backendServerUrl}\n");
 
                 //return the response to client
                 var buffer = Encoding.UTF8.GetBytes(brResponse);
@@ -72,30 +73,34 @@ namespace LoadBalancer
                 Console.WriteLine($"{DateTime.Now.ToString("O")} checking health...");
                 var client = new HttpClient();
                 client.Timeout = TimeSpan.FromMilliseconds(500);
-                for (int i = 0; i < backendServersUrls.Count;)
+                for (int i = 0; i < backendServerUrls.Count;i++)
                 {
-                    Console.WriteLine($"Checking - {backendServersUrls[i]} -");
-                    var healthCheckUrl = backendServersUrls[i] + "/healthcheck.html";
+                    Console.WriteLine($"Checking - {backendServerUrls[i]} -");
+                    var healthCheckUrl = backendServerUrls[i] + "/healthcheck.html";
                     HttpResponseMessage? hcRequest = null;
                     try
                     {
                         hcRequest = await client.GetAsync(healthCheckUrl);
                         if (!hcRequest.IsSuccessStatusCode)
                         {
-                            backendServersUrls.RemoveAt(i);
+                            activeBackendServerUrls.Remove(backendServerUrls[i]);
                         }
                         else
                         {
                             Console.WriteLine($"{DateTime.Now.ToString("O")}: OK");
-                            i++;
+                            
+                            if (!activeBackendServerUrls.Contains(backendServerUrls[i]))
+                                activeBackendServerUrls.Add(backendServerUrls[i]);
                         }
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
-                        backendServersUrls.RemoveAt(i);
+                        activeBackendServerUrls.Remove(backendServerUrls[i]);
                     }
                 }
+
+                Console.WriteLine($"Active Servers: {string.Join(",", activeBackendServerUrls)}");
 
             }, null, 1000, 5000);
             
