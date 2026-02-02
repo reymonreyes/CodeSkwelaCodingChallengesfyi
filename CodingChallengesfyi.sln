@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5-LoadBalancer", "5-LoadBal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoadBalancer", "LoadBalancer\LoadBalancer.csproj", "{DC79DD2C-CD37-4983-9112-C7444331C675}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecker", "HealthChecker\HealthChecker.csproj", "{5469DD95-7A4F-40B1-B5D0-934D7B939193}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{DC79DD2C-CD37-4983-9112-C7444331C675}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC79DD2C-CD37-4983-9112-C7444331C675}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC79DD2C-CD37-4983-9112-C7444331C675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5469DD95-7A4F-40B1-B5D0-934D7B939193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5469DD95-7A4F-40B1-B5D0-934D7B939193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5469DD95-7A4F-40B1-B5D0-934D7B939193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5469DD95-7A4F-40B1-B5D0-934D7B939193}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,6 +86,7 @@ Global
 		{574E8350-7294-47B6-861E-B80ABAE57CA8} = {1B4279AF-6120-4DC0-8341-4F4DD078260A}
 		{3C6D7937-E16C-435F-84EE-06DB2FBF9588} = {1B4279AF-6120-4DC0-8341-4F4DD078260A}
 		{DC79DD2C-CD37-4983-9112-C7444331C675} = {6241FBE5-2E96-4D53-AF32-6E66604A6E8A}
+		{5469DD95-7A4F-40B1-B5D0-934D7B939193} = {6241FBE5-2E96-4D53-AF32-6E66604A6E8A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {92639AB5-3D2C-4432-A33E-7F413A355524}

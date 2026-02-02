@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Text;
 using System.Text.Unicode;
 
@@ -6,25 +7,30 @@ namespace LoadBalancer
 {
     internal class Program
     {
+        private static List<string> backendServersUrls = new List<string> { "http://localhost:8081", "http://localhost:8082", "http://localhost:8083" };
+        //private static string[] backendServersUrls = new string[]{ "http://localhost:8081", "http://localhost:8082", "http://localhost:8083" };
+        private static Timer? _timer = null;
         static async Task Main(string[] args)
         {
             //client -> load balancer -> backend server -> load balancer -> client
+
+            StartHealthChecker();
 
             var httpListener = new HttpListener();
             httpListener.Prefixes.Add("http://localhost:8080/");
 
             httpListener.Start();
             var nextBackendServer = 0;
-            var backendServersUrls = new string[]{ "http://localhost:8081", "http://localhost:8082", "http://localhost:8083" };
 
             while (true)
             {
+                Console.WriteLine();
                 Console.WriteLine("Listening for requests...");
                 var context = await httpListener.GetContextAsync();
                 var request = context.Request;
 
                 //return some info
-                Console.WriteLine($"[{DateTime.Now.ToString("O")}]");
+                Console.WriteLine($"Request at [{DateTime.Now.ToString("O")}]");
                 Console.WriteLine($"Request received from {request.RemoteEndPoint}");
                 Console.WriteLine($"{request.HttpMethod} / HTTP/{request.ProtocolVersion.Major}.{request.ProtocolVersion.Minor}");
                 Console.WriteLine($"Host: {request.Url.Host}");
@@ -32,8 +38,9 @@ namespace LoadBalancer
                 Console.WriteLine($"Accept: {(request.AcceptTypes != null ? string.Join(',', request.AcceptTypes) : "")}");
 
                 //make a request to backend server
-                var backendServerUrl = backendServersUrls[nextBackendServer % backendServersUrls.Length];
-                Console.WriteLine($"Backend request to server {backendServerUrl}\n");
+                var backendServerIndex = nextBackendServer % backendServersUrls.Count;
+                var backendServerUrl = backendServersUrls[backendServerIndex];
+                Console.WriteLine($"Backend request to server {backendServerUrl}");
                 nextBackendServer++;
 
                 var httpClient = new HttpClient();
@@ -41,7 +48,8 @@ namespace LoadBalancer
                 var brResponse = await backendRequest.Content.ReadAsStringAsync();
 
                 //show the response
-                //Console.Write(brResponse);
+                if(backendRequest.IsSuccessStatusCode)
+                    Console.Write($"OK response from {backendServerUrl}");
 
                 //return the response to client
                 var buffer = Encoding.UTF8.GetBytes(brResponse);
@@ -55,6 +63,42 @@ namespace LoadBalancer
             }
 
             httpListener.Stop();
+        }
+
+        static void StartHealthChecker()
+        {
+            Console.WriteLine("Health Checker running...");
+            _timer = new Timer(async (stateInfo) => {
+                Console.WriteLine($"{DateTime.Now.ToString("O")} checking health...");
+                var client = new HttpClient();
+                client.Timeout = TimeSpan.FromMilliseconds(500);
+                for (int i = 0; i < backendServersUrls.Count;)
+                {
+                    Console.WriteLine($"Checking - {backendServersUrls[i]} -");
+                    var healthCheckUrl = backendServersUrls[i] + "/healthcheck.html";
+                    HttpResponseMessage? hcRequest = null;
+                    try
+                    {
+                        hcRequest = await client.GetAsync(healthCheckUrl);
+                        if (!hcRequest.IsSuccessStatusCode)
+                        {
+                            backendServersUrls.RemoveAt(i);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{DateTime.Now.ToString("O")}: OK");
+                            i++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        backendServersUrls.RemoveAt(i);
+                    }
+                }
+
+            }, null, 1000, 5000);
+            
         }
     }
 }
