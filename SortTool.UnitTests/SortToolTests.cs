@@ -14,8 +14,20 @@ namespace SortTool.UnitTests
             var expected = new string[]{ "A", "ACTUAL", "AGREE", "AGREEMENT", "AND" };
             var sort = new Sort("words.txt");
             
-            var result = sort.Run();
+            var result = sort.Run(new string[0]);
             result = result.Distinct().Take(5).ToArray();
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Sort_UniqueOptionShouldSortLexicographically()
+        {
+            var expected = new string[] { "A", "ACTUAL", "AGREE", "AGREEMENT", "AND" };
+            var sort = new Sort("words.txt");
+
+            var result = sort.Run(new string[] { "-u" });
+            result = result.Take(5).ToArray();
 
             Assert.Equal(expected, result);
         }

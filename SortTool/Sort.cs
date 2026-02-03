@@ -13,18 +13,21 @@ namespace SortTool
         {
             _file = file;
         }
-        public string[] Run()
+        public string[] Run(string[] options)
         {
             var tempLines = System.IO.File.ReadAllLines(_file);
             var lines = new List<string>(tempLines);
 
             //remove empty strings
             lines.RemoveAll(x => x == string.Empty);
-            lines.RemoveAll(x => x == "§" || x == "§§");
+            lines.RemoveAll(x => x == "§" || x == "§§");           
+            
+            var result = lines.OrderBy(x => x, StringComparer.Ordinal).ToList();
 
-            var result =  lines.OrderBy(x => x, StringComparer.Ordinal).ToArray();
+            if (options.Contains("-u"))
+                result = result.Distinct().ToList();
 
-            return result;
+            return result.ToArray();
         }
     }
 }
