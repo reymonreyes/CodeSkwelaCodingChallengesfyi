@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SortTool": {
+      "commandName": "Project",
+      "commandLineArgs": "words.txt"
+    }
+  }
+}
