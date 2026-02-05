@@ -2,7 +2,7 @@
   "profiles": {
     "SortTool": {
       "commandName": "Project",
-      "commandLineArgs": "-u words.txt"
+      "commandLineArgs": "words.txt"
     }
   }
 }

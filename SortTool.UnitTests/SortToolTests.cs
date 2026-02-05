@@ -31,5 +31,17 @@ namespace SortTool.UnitTests
 
             Assert.Equal(expected, result);
         }
+
+        [Fact]
+        public void RadixSort_ShouldSort()
+        {
+            var expected = new string[] { "A", "B", "C", "D", "E" };
+            var sort = new Sort("words.txt");
+
+            var result = sort.RunRadixSort();
+
+            Assert.Equal(expected, result);
+
+        }
     }
 }

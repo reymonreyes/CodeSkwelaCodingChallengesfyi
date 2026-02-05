@@ -4,8 +4,8 @@
     {
         static void Main(string[] args)
         {
-            //Step1Sort(args);
-            Step2Sort(args);
+            Step1Sort(args);
+            //Step2Sort(args);
         }
 
         static void Step1Sort(string[] args)
