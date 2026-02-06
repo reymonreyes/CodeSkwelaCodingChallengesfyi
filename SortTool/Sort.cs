@@ -32,54 +32,34 @@ namespace SortTool
 
         public string[] RunRadixSort()
         {
-            //var tempLines = System.IO.File.ReadAllLines(_file, Encoding.UTF8);
-            //var lines = new List<string>(tempLines);
-
-            //var ligatures = lines.Where(x => x.Contains("outman")).ToList();
-
-            ////clean up
-            //lines.RemoveAll(x => x == string.Empty);
-
-            ////convert each string line into a number value
-            //var lineNumberValues = new int[lines.Count];
-
-            //for (int i = 0; i < lines.Count; i++)
-            //{
-            //    lineNumberValues[i] = lines[i].Select(x => x).Sum(x => x);
-            //}
-
-            //var largest = lineNumberValues.Max();
-            //var indexOfLargest = Array.IndexOf(lineNumberValues, largest);
-
-            var words = new string[] { "delta", "alpha", "golf", "foxtrot", "november" };
             var buckets = new int[10][];
-            var wordValues = words.Select(x => x.Select(y => y).Sum(y => y)).ToArray().Select(x => x.ToString()).ToArray();//new string[] { "33", "45", "40", "25", "17", "24" };//
-            var longestNumber = wordValues.Max(x => x.Length);
-            var sorted = new int[wordValues.Length];
+            var valuesToSort = new int[] { 33, 45, 40, 25, 17, 24 };
+            var result = new string[0];
+            var largestNumber = valuesToSort.Max(x => x);
+            var numberPlace = 1;
 
-            for (int i = longestNumber - 1; i >= 0; i--)
+            for (; largestNumber / numberPlace > 0; numberPlace = numberPlace * 10)
             {
-                for (int j = 0;j < wordValues.Length; j++)
+                for (int j = 0;j < valuesToSort.Length; j++)
                 {
-                    var digit = int.Parse(new ReadOnlySpan<char>(wordValues[j][i]));
-                    var alpha = buckets[digit];
-
-                    var newValue = new int[] { int.Parse(wordValues[j]) };
+                    var value = valuesToSort[j];
+                    var digit = (value / numberPlace) % 10;
 
                     if (buckets[digit] == null)
-                        buckets[digit] = newValue;
+                        buckets[digit] = new int[] { value };
                     else
                     {
-                        var newValues = new int[buckets[digit].Length + newValue.Length];
+                        var newValues = new int[buckets[digit].Length + 1];
                         for (int a = 0; a < buckets[digit].Length; a++)
                             newValues[a] = buckets[digit][a];
 
-                        newValues[newValues.Length - 1] = newValue[0];
+                        newValues[newValues.Length - 1] = value;
                         buckets[digit] = newValues;
                     }
                 }
 
                 var sortedIndex = 0;
+                valuesToSort = new int[valuesToSort.Length];
 
                 for (int j = 0; j < buckets.Length; j++)
                 {
@@ -87,13 +67,12 @@ namespace SortTool
                     {
                         for (int a = 0; a < buckets[j].Length; a++)
                         {
-                            sorted[sortedIndex] = buckets[j][a];
+                            valuesToSort[sortedIndex] = buckets[j][a];
                             sortedIndex++;
                         }
                     }
                 }
 
-                wordValues = sorted.Select(x => x.ToString()).ToArray();
                 buckets = new int[10][];
             }
 
