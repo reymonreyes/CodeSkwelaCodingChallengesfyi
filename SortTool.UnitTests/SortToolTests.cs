@@ -41,7 +41,61 @@ namespace SortTool.UnitTests
             var result = sort.RunRadixSort();
 
             Assert.Equal(expected, result);
+        }
 
+        [Fact]
+        public void Dummy()
+        {
+            var random = new Random();
+            random.Next(0, 1000);
+            var numbers = new int[10];
+            for (int i = 0; i < 10; i++)
+            {
+                numbers[i] = random.Next(0, 1000);
+            }
+
+            var max = numbers.Max();
+            var min = numbers.Min();
+            var mid = (max - min) / 2 + min;
+            var splitBucket = new int[,] { { min, mid }, { mid + 1, max } };
+            var buckets = new int[2][];
+
+            for (int i = 0; i < numbers.Length; i++)
+            {
+                for (int j = 0; j < splitBucket.Length; j++)
+                {
+                    if(numbers[i] >= splitBucket[j,0] && numbers[i] <= splitBucket[j, 1])
+                    {
+                        if (buckets[j] == null)
+                        {
+                            buckets[j] = new int[] { numbers[i] };
+                        }
+                        else
+                        {
+                            var newValues = new int[buckets[j].Length + 1];
+                            for (int a = 0; a < buckets[j].Length; a++)
+                                newValues[a] = buckets[j][a];
+
+                            newValues[newValues.Length - 1] = numbers[i];
+                            buckets[j] = newValues;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            var numberIndex = 0;
+            for (int i = 0; i < buckets.Length; i++)
+            {
+                if (buckets[i] != null)
+                {
+                    for(int j = 0;j < buckets[i].Length; j++)
+                    {
+                        numbers[numberIndex] = buckets[i][j];
+                        numberIndex++;
+                    }
+                }
+            }
         }
     }
 }

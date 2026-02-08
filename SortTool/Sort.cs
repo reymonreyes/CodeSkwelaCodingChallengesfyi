@@ -32,8 +32,14 @@ namespace SortTool
 
         public string[] RunRadixSort()
         {
+            //now sort using strings?
+            var stringsToSort = new string[] { "delta", "echo", "alpha" };
+            //get values 
+
+
+
             var buckets = new int[10][];
-            var valuesToSort = new int[] { 33, 45, 40, 25, 17, 24 };
+            var valuesToSort = new int[] { 33, 145, 40, 25, 17, 24 };
             var result = new string[0];
             var largestNumber = valuesToSort.Max(x => x);
             var numberPlace = 1;
