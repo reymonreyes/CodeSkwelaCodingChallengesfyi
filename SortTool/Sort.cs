@@ -32,57 +32,65 @@ namespace SortTool
 
         public string[] RunRadixSort()
         {
-            //now sort using strings?
-            var stringsToSort = new string[] { "delta", "echo", "alpha" };
-            //get values 
+            
+            var lines = System.IO.File.ReadAllLines(_file, Encoding.UTF8);
+            var charsOnly = lines.SelectMany(x => x).Select(x => x).Distinct().OrderBy(x => x).ToArray();
+            var longestWord = lines.OrderByDescending(x => x.Length).FirstOrDefault();
+            var shortestWord = lines.OrderByDescending(x => x.Length).LastOrDefault();
+            var buckets = new string[charsOnly.Length][];
 
-
-
-            var buckets = new int[10][];
-            var valuesToSort = new int[] { 33, 145, 40, 25, 17, 24 };
-            var result = new string[0];
-            var largestNumber = valuesToSort.Max(x => x);
-            var numberPlace = 1;
-
-            for (; largestNumber / numberPlace > 0; numberPlace = numberPlace * 10)
+            for (int characterPosition = longestWord.Length - 1; characterPosition >= 0; characterPosition--)
             {
-                for (int j = 0;j < valuesToSort.Length; j++)
+                for (int wordIndex = 0; wordIndex < lines.Length; wordIndex++)
                 {
-                    var value = valuesToSort[j];
-                    var digit = (value / numberPlace) % 10;
+                    var word = lines[wordIndex];
+                    var characterIndex = characterPosition;
 
-                    if (buckets[digit] == null)
-                        buckets[digit] = new int[] { value };
+                    if (word.Length - 1 < characterPosition)
+                    {                        
+                        var positionDiff = characterPosition - word.Length;
+                        characterIndex = characterPosition - positionDiff;
+                        characterIndex = characterIndex < 0 ? 0 : characterIndex - 1;
+                    }
+
+                    var character = word[characterIndex];
+                    var characterBucketIndex = Array.IndexOf(charsOnly, character);
+
+                    if (buckets[characterBucketIndex] == null)
+                    {
+                        buckets[characterBucketIndex] = new string[] { word };
+                    }
                     else
                     {
-                        var newValues = new int[buckets[digit].Length + 1];
-                        for (int a = 0; a < buckets[digit].Length; a++)
-                            newValues[a] = buckets[digit][a];
+                        var newValues = new string[buckets[characterBucketIndex].Length + 1];
+                        for (int a = 0; a < buckets[characterBucketIndex].Length; a++)
+                            newValues[a] = buckets[characterBucketIndex][a];
 
-                        newValues[newValues.Length - 1] = value;
-                        buckets[digit] = newValues;
+                        newValues[newValues.Length - 1] = word;
+                        buckets[characterBucketIndex] = newValues;
                     }
                 }
 
-                var sortedIndex = 0;
-                valuesToSort = new int[valuesToSort.Length];
-
-                for (int j = 0; j < buckets.Length; j++)
+                int lineIndex = 0;
+                for (int bucketIndex = 0; bucketIndex < buckets.Length; bucketIndex++)
                 {
-                    if (buckets[j] != null)
+                    if (buckets[bucketIndex] != null)
                     {
-                        for (int a = 0; a < buckets[j].Length; a++)
+                        for (int elementIndex = 0; elementIndex < buckets[bucketIndex].Length; elementIndex++)
                         {
-                            valuesToSort[sortedIndex] = buckets[j][a];
-                            sortedIndex++;
+                            lines[lineIndex] = buckets[bucketIndex][elementIndex];
+                            lineIndex++;
                         }
                     }
                 }
 
-                buckets = new int[10][];
+                //reset the buckets
+                buckets = new string[charsOnly.Length][];
             }
 
-            return new string[0];
+            //lines = lines.Distinct().ToArray();
+
+            return lines;
         }
     }
 }
